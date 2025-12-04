@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Odoo Journal Module - Personal Journal System</title>
+    <meta name="description" content="A comprehensive personal journal system for Odoo with mood tracking, analytics, and version control">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== VARIABLES ===== */
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3a0ca3;
+            --secondary: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --radius: 12px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* ===== BASE STYLES ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ===== HEADER ===== */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+            border-radius: 0 0 var(--radius) var(--radius);
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            opacity: 0.9;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .badge:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        /* ===== FEATURES ===== */
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: var(--dark);
+            position: relative;
+        }
+
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+            border-top: 4px solid var(--primary);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+        }
+
+        /* ===== SCREENSHOTS ===== */
+        .screenshots {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .screenshot {
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot:hover img {
+            transform: scale(1.02);
+        }
+
+        .screenshot-caption {
+            padding: 1rem;
+            background: white;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* ===== INSTALLATION ===== */
+        .installation {
+            background: white;
+            padding: 3rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 4rem;
+        }
+
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .code-block code {
+            display: block;
+            line-height: 1.5;
+        }
+
+        .code-comment {
+            color: #6a9955;
+        }
+
+        .code-keyword {
+            color: #569cd6;
+        }
+
+        .code-string {
+            color: #ce9178;
+        }
+
+        /* ===== STRUCTURE ===== */
+        .structure-tree {
+            background: white;
+            padding: 2rem;
+            border-radius: var(--radius);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 4rem;
+        }
+
+        .tree {
+            font-family: 'Courier New', monospace;
+            line-height: 1.8;
+        }
+
+        .tree-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 0;
+            text-align: center;
+            border-radius: var(--radius) var(--radius) 0 0;
+            margin-top: 4rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-link {
+            color: white;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--primary-light);
+        }
+
+        .copyright {
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .screenshots {
+                grid-template-columns: 1fr;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .installation {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== HERO SECTION ===== -->
+    <header class="hero">
+        <div class="container">
+            <h1><i class="fas fa-book-open"></i> Odoo Journal Module</h1>
+            <p>A comprehensive personal journal system for Odoo with mood tracking, analytics, and version control</p>
+
+            <div class="badges">
+                <span class="badge"><i class="fas fa-check-circle"></i> Odoo 15+</span>
+                <span class="badge"><i class="fas fa-shield-alt"></i> LGPL-3.0</span>
+                <span class="badge"><i class="fas fa-star"></i> Production Ready</span>
+                <span class="badge"><i class="fas fa-code"></i> 1000+ Lines</span>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="https://github.com/AyeshaChughtaiIsMe/odoo-journal" class="btn btn-primary">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
+                <a href="https://github.com/AyeshaChughtaiIsMe/odoo-journal/archive/refs/heads/main.zip" class="btn btn-secondary">
+                    <i class="fas fa-download"></i> Download .zip
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- ===== FEATURES SECTION ===== -->
+        <section class="features">
+            <h2 class="section-title"><i class="fas fa-star"></i> Key Features</h2>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3>Journal Entries</h3>
+                    <p>Create, edit, publish, and archive journal entries with rich text editor and automatic versioning.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3>Mood Analytics</h3>
+                    <p>Track emotions with interactive dashboards including pivot tables, graphs, and trend analysis.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Full-Text Search</h3>
+                    <p>Advanced search across titles, content, tags, and notebooks using PostgreSQL vectors.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h3>Version Control</h3>
+                    <p>Automatic version history with diff comparison, restore points, and changelog.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <h3>Export Options</h3>
+                    <p>Export entries as PDF or Markdown with custom formatting and batch operations.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <h3>Tag Management</h3>
+                    <p>Categorize entries with colored tags, smart filters, and tag analytics.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== SCREENSHOTS SECTION ===== -->
+        <section class="screenshots-section">
+            <h2 class="section-title"><i class="fas fa-images"></i> Screenshots</h2>
+
+            <div class="screenshots">
+                <div class="screenshot">
+                    <img src="https://via.placeholder.com/800x450/4361ee/ffffff?text=Main+Entries+View" alt="Main Entries Interface">
+                    <div class="screenshot-caption">Main Journal Entries Interface</div>
+                </div>
+
+                <div class="screenshot">
+                    <img src="https://via.placeholder.com/800x450/4895ef/ffffff?text=Mood+Analytics+Dashboard" alt="Mood Analytics Dashboard">
+                    <div class="screenshot-caption">Mood Analytics Dashboard</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== INSTALLATION SECTION ===== -->
+        <section class="installation">
+            <h2 class="section-title"><i class="fas fa-download"></i> Installation</h2>
+
+            <h3>Requirements</h3>
+            <ul style="margin: 1rem 0 1rem 2rem; color: var(--gray);">
+                <li>Odoo 15.0 or later</li>
+                <li>PostgreSQL 12 or later</li>
+                <li>Python 3.8+</li>
+            </ul>
+
+            <h3>Quick Installation</h3>
+            <div class="code-block">
+                <code>
+                    <span class="code-comment"># 1. Clone the repository</span><br>
+                    <span class="code-keyword">git</span> clone https://github.com/AyeshaChughtaiIsMe/odoo-journal.git<br><br>
+
+                    <span class="code-comment"># 2. Copy to Odoo addons directory</span><br>
+                    <span class="code-keyword">cp</span> -r odoo-journal/journal /path/to/odoo/addons/<br><br>
+
+                    <span class="code-comment"># 3. Update Odoo modules</span><br>
+                    ./odoo-bin -u base<br><br>
+
+                    <span class="code-comment"># 4. Install Journal module</span><br>
+                    ./odoo-bin -i journal<br>
+                </code>
+            </div>
+
+            <h3>Configuration</h3>
+            <div class="code-block">
+                <code>
+                    <span class="code-comment"># In Odoo, after installation:</span><br>
+                    1. Go to <span class="code-string">Apps → Journal</span><br>
+                    2. Create your first notebook<br>
+                    3. Start writing entries<br>
+                    4. Configure search preferences<br>
+                    5. Set up automated backups<br>
+                </code>
+            </div>
+        </section>
+
+        <!-- ===== STRUCTURE SECTION ===== -->
+        <section class="structure">
+            <h2 class="section-title"><i class="fas fa-folder-tree"></i> Module Structure</h2>
+
+            <div class="structure-tree">
+                <div class="tree">
+                    <div class="tree-item"><i class="fas fa-folder"></i> journal/</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-file"></i> __manifest__.py</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-file"></i> README.md</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-file"></i> LICENSE</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-folder"></i> models/</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-file-code"></i> journal_entry.py</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-file-code"></i> journal_tag.py</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-file-code"></i> journal_notebook.py</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-folder"></i> views/</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-file-code"></i> journal_views.xml</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-folder"></i> security/</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-file"></i> ir.model.access.csv</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-folder"></i> static/</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-folder"></i> description/</div>
+                    <div class="tree-item" style="margin-left: 60px;"><i class="fas fa-image"></i> icon.png</div>
+                    <div class="tree-item" style="margin-left: 60px;"><i class="fas fa-image"></i> screenshot*.png</div>
+                    <div class="tree-item" style="margin-left: 20px;"><i class="fas fa-folder"></i> docs/</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-file-alt"></i> USER_GUIDE.md</div>
+                    <div class="tree-item" style="margin-left: 40px;"><i class="fas fa-file-alt"></i> DEVELOPER_GUIDE.md</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-links">
+                <a href="https://github.com/AyeshaChughtaiIsMe/odoo-journal" class="footer-link">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="https://www.odoo.com" class="footer-link">
+                    <i class="fas fa-external-link-alt"></i> Odoo
+                </a>
+                <a href="https://www.gnu.org/licenses/lgpl-3.0.html" class="footer-link">
+                    <i class="fas fa-balance-scale"></i> LGPL-3.0 License
+                </a>
+                <a href="mailto:ayeshaa.chughtaii@gmail.com" class="footer-link">
+                    <i class="fas fa-envelope"></i> Contact
+                </a>
+            </div>
+
+            <p class="copyright">
+                © 2025 Odoo Journal Module • Created by Ayesha Chughtai<br>
+                This module is not officially affiliated with Odoo S.A.
+            </p>
+
+            <p style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.6;">
+                <i class="fas fa-code"></i> Built with passion for journaling and Odoo development
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add animation to feature cards on scroll
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            observer.observe(card);
+        });
+    </script>
+</body>
+</html>
