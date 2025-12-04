@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Version Tree View -->
+    <record id="view_journal_entry_version_tree" model="ir.ui.view">
+        <field name="name">journal.entry.version.tree</field>
+        <field name="model">journal.entry.version</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="version_number" string="Version"/>
+                <field name="create_date" string="Created"/>
+                <field name="created_by" string="By"/>
+                <field name="word_count" string="Words"/>
+                <field name="char_count" string="Chars"/>
+                <field name="preview" string="Preview"/>
+                <field name="time_ago" string="Time Ago"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Version Form View -->
+    <record id="view_journal_entry_version_form" model="ir.ui.view">
+        <field name="name">journal.entry.version.form</field>
+        <field name="model">journal.entry.version</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_restore" string="Restore This Version" type="object" class="btn-primary"/>
+                    <button name="action_compare_with_current" string="Compare with Current" type="object" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="version_number" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                            <field name="created_by" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="word_count" readonly="1"/>
+                            <field name="char_count" readonly="1"/>
+                            <field name="time_ago" readonly="1"/>
+                        </group>
+                    </group>
+                    <div class="oe_title">
+                        <label for="content" string="Content"/>
+                        <field name="content" nolabel="1" readonly="1" style="min-height: 400px;" widget="html"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Version Action -->
+    <record id="action_journal_entry_versions" model="ir.actions.act_window">
+        <field name="name">Version History</field>
+        <field name="res_model">journal.entry.version</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_entry_id': active_id}</field>
+    </record>
+</odoo>

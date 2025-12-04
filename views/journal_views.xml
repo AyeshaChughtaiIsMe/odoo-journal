@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Actions -->
+    <record id="action_journal_entries" model="ir.actions.act_window">
+        <field name="name">Journal Entries</field>
+        <field name="res_model">journal.entry</field>
+        <field name="view_mode">tree,form,kanban</field>
+        <field name="view_id" ref="view_journal_entry_tree"/>
+        <field name="context">{'search_default_my_entries': true}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first journal entry!
+            </p>
+        </field>
+    </record>
+
+    <!-- New Action for Archived Entries -->
+    <record id="action_journal_archived_entries" model="ir.actions.act_window">
+        <field name="name">Archived Entries</field>
+        <field name="res_model">journal.entry</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_journal_entry_tree"/>
+        <field name="domain">[('state','=','archived')]</field>
+        <field name="context">{'search_default_my_entries': true}</field>
+        <field name="search_view_id" ref="view_journal_entry_search"/>
+    </record>
+
+    <!-- New Action for Archived Tags -->
+    <record id="action_journal_archived_tags" model="ir.actions.act_window">
+        <field name="name">Archived Tags</field>
+        <field name="res_model">journal.tag</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('active','=',False)]</field>
+        <field name="search_view_id" ref="view_journal_tag_search"/>
+    </record>
+
+    <!-- New Action for Archived Notebooks -->
+    <record id="action_journal_archived_notebooks" model="ir.actions.act_window">
+        <field name="name">Archived Notebooks</field>
+        <field name="res_model">journal.notebook</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('active','=',False)]</field>
+        <field name="search_view_id" ref="view_journal_notebook_search"/>
+    </record>
+
+    <record id="action_journal_notebooks" model="ir.actions.act_window">
+        <field name="name">Notebooks</field>
+        <field name="res_model">journal.notebook</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_journal_notebook_tree"/>
+    </record>
+
+    <record id="action_journal_tags" model="ir.actions.act_window">
+        <field name="name">Tags</field>
+        <field name="res_model">journal.tag</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Mood Analytics Action with Custom Views (NO CALENDAR) -->
+    <record id="action_journal_mood_analysis" model="ir.actions.act_window">
+        <field name="name">Mood Analysis</field>
+        <field name="res_model">journal.entry</field>
+        <field name="view_mode">tree,pivot,graph</field>
+        <field name="views" eval="[(ref('view_journal_mood_tree'), 'tree'), (ref('view_journal_mood_pivot'), 'pivot'), (ref('view_journal_mood_graph'), 'graph')]"/>
+        <field name="domain">[('mood', '!=', False)]</field>
+        <field name="context">{
+            'search_default_filter_mood': True,
+            'search_default_group_by_mood': True,
+            'pivot_measures': ['word_count'],
+            'graph_measures': ['word_count'],
+            'graph_mode': 'pie',
+            'graph_groupbys': ['mood']
+        }</field>
+    </record>
+
+    <!-- Menus -->
+    <menuitem id="menu_journal_main" name="Journal" sequence="10"/>
+
+    <menuitem id="menu_journal_entries" name="My Entries"
+              parent="menu_journal_main" action="action_journal_entries" sequence="10"/>
+
+    <!-- New Menu Items for Archived Records -->
+    <menuitem id="menu_journal_archived" name="Archived"
+              parent="menu_journal_main" sequence="50"/>
+
+    <menuitem id="menu_journal_archived_tags" name="Archived Tags"
+              parent="menu_journal_archived" action="action_journal_archived_tags" sequence="20"/>
+
+    <menuitem id="menu_journal_archived_notebooks" name="Archived Notebooks"
+              parent="menu_journal_archived" action="action_journal_archived_notebooks" sequence="30"/>
+
+    <menuitem id="menu_journal_notebooks" name="Notebooks"
+              parent="menu_journal_main" action="action_journal_notebooks" sequence="20"/>
+
+    <menuitem id="menu_journal_tags" name="Tags"
+              parent="menu_journal_main" action="action_journal_tags" sequence="30"/>
+
+    <menuitem id="menu_journal_mood_analysis" name="Mood Analysis"
+              parent="menu_journal_main" action="action_journal_mood_analysis" sequence="40"/>
+
+    <!-- Enhanced Search View with Full-Text Search -->
+    <record id="view_journal_entry_search" model="ir.ui.view">
+        <field name="name">journal.entry.search</field>
+        <field name="model">journal.entry</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Title"/>
+                <field name="content" string="Content"/>
+                <field name="tag_ids" string="Tags"/>
+                <field name="mood" string="Mood"/>
+                <field name="search_vector" string="Full Text Search" invisible="1"/>
+
+                <!-- Filters -->
+                <filter string="My Entries" name="my_entries" domain="[('user_id','=',uid)]"/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Published" name="published" domain="[('state','=','published')]"/>
+                <filter string="Archived" name="archived" domain="[('state','=','archived')]"/>
+                <filter string="Favorites" name="favorites" domain="[('is_favorite','=',True)]"/>
+                <filter string="Has Mood" name="filter_mood" domain="[('mood','!=',False)]"/>
+
+                <!-- Smart Search -->
+                <filter string="Full Text Search" name="full_text_search"
+                        domain="[('search_vector','!=','')]" help="Search across titles, content, tags, and notebooks"/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Notebook" name="group_by_notebook" context="{'group_by': 'notebook_id'}"/>
+                    <filter string="Status" name="group_by_state" context="{'group_by': 'state'}"/>
+                    <filter string="Mood" name="group_by_mood" context="{'group_by': 'mood'}"/>
+                    <filter string="Date" name="group_by_date" context="{'group_by': 'entry_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Mood Analytics Search View -->
+    <record id="view_journal_mood_search" model="ir.ui.view">
+        <field name="name">journal.mood.search</field>
+        <field name="model">journal.entry</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="mood" string="Mood"/>
+                <field name="notebook_id" string="Notebook"/>
+                <field name="entry_date" string="Date"/>
+
+                <!-- Filters -->
+                <filter string="My Entries" name="my_entries" domain="[('user_id','=',uid)]"/>
+                <filter string="Has Mood" name="filter_mood" domain="[('mood','!=',False)]"/>
+                <filter string="This Week" name="this_week" domain="[('entry_date','>=',context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="This Month" name="this_month" domain="[('entry_date','>=',context_today().strftime('%Y-%m-01'))]"/>
+                <filter string="Last 30 Days" name="last_30_days" domain="[('entry_date','>=',(context_today() - datetime.timedelta(days=30)).strftime('%Y-%m-%d'))]"/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Mood" name="group_by_mood" context="{'group_by': 'mood'}"/>
+                    <filter string="Notebook" name="group_by_notebook" context="{'group_by': 'notebook_id'}"/>
+                    <filter string="Week" name="group_by_week" context="{'group_by': 'entry_date:week'}"/>
+                    <filter string="Month" name="group_by_month" context="{'group_by': 'entry_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Tag Search View -->
+    <record id="view_journal_tag_search" model="ir.ui.view">
+        <field name="name">journal.tag.search</field>
+        <field name="model">journal.tag</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="color"/>
+
+                <!-- Filters -->
+                <filter string="Active Tags" name="active" domain="[('active','=',True)]"/>
+                <filter string="Archived Tags" name="archived" domain="[('active','=',False)]"/>
+                <separator/>
+
+                <!-- Group By -->
+                <group expand="0" string="Group By">
+                    <filter string="Active Status" name="group_by_active" context="{'group_by': 'active'}"/>
+                    <filter string="Color" name="group_by_color" context="{'group_by': 'color'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Notebook Search View -->
+    <record id="view_journal_notebook_search" model="ir.ui.view">
+        <field name="name">journal.notebook.search</field>
+        <field name="model">journal.notebook</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="description"/>
+
+                <!-- Filters -->
+                <filter string="My Notebooks" name="my_notebooks" domain="[('user_id','=',uid)]"/>
+                <filter string="Active" name="active" domain="[('active','=',True)]"/>
+                <filter string="Archived" name="archived" domain="[('active','=',False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Journal Entry Form View -->
+    <record id="view_journal_entry_form" model="ir.ui.view">
+        <field name="name">journal.entry.form</field>
+        <field name="model">journal.entry</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_publish" string="Publish" type="object" class="btn-primary"/>
+                    <button name="action_draft" string="Set to Draft" type="object" class="btn-secondary"/>
+                    <button name="action_archive" string="Archive" type="object" class="btn-secondary"/>
+                    <button name="action_toggle_favorite" type="object" class="btn-light" icon="fa-star"/>
+                    <!-- Delete button -->
+                    <button name="action_delete" string="Delete" type="object" class="btn-danger" confirm="Are you sure you want to delete this entry?"/>
+                    <!-- Export buttons -->
+                    <button name="action_export_pdf" string="Export PDF" type="object" class="btn-secondary" icon="fa-file-pdf"/>
+                    <button name="action_export_markdown" string="Export Markdown" type="object" class="btn-secondary" icon="fa-file-text"/>
+                    <!-- Version history buttons -->
+                    <button name="action_view_versions" string="Version History" type="object" class="btn-secondary"/>
+                    <field name="versions_count" widget="statinfo" string="Versions"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,published,archived"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="user_id" invisible="1"/>
+                            <field name="name" placeholder="What's on your mind?"/>
+                            <field name="notebook_id" required="1"/>
+                            <!-- Tags with colors -->
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        </group>
+                        <group>
+                            <field name="entry_date"/>
+                            <field name="mood"/>
+                            <field name="word_count" readonly="1"/>
+                            <field name="char_count" readonly="1"/>
+                            <field name="is_favorite"/>
+                            <field name="current_version" readonly="1" string="Current Version"/>
+                        </group>
+                    </group>
+                    <div>
+                        <label for="content" string="Your Thoughts"/>
+                        <field name="content" placeholder="Start writing your thoughts here..." nolabel="1"
+                               style="min-height: 400px;" widget="html"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Journal Entry Tree View -->
+    <record id="view_journal_entry_tree" model="ir.ui.view">
+        <field name="name">journal.entry.tree</field>
+        <field name="model">journal.entry</field>
+        <field name="priority">1</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state=='published'" decoration-warning="state=='draft'" decoration-danger="state=='archived'">
+                <!-- Control Panel Button for Archived Entries -->
+                <control>
+                    <create string="New Entry"/>
+                    <button name="%(action_journal_archived_entries)d" string="View Archived Entries" type="action" class="btn-secondary"/>
+                </control>
+                <field name="name" string="Title"/>
+                <field name="notebook_id" string="Notebook"/>
+                <field name="entry_date" string="Date"/>
+                <field name="mood" string="Mood"/>
+                <field name="word_count" string="Words"/>
+                <field name="state" string="Status"/>
+                <field name="is_favorite" string="Favorite"/>
+                <field name="versions_count" string="Versions"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Custom Mood Tree View -->
+    <record id="view_journal_mood_tree" model="ir.ui.view">
+        <field name="name">journal.entry.mood.tree</field>
+        <field name="model">journal.entry</field>
+        <field name="arch" type="xml">
+            <tree default_order="entry_date desc">
+                <field name="name" string="Entry Title"/>
+                <field name="entry_date" string="Date"/>
+                <field name="mood" string="Mood"/>
+                <field name="notebook_id" string="Notebook"/>
+                <field name="word_count" string="Words"/>
+                <field name="state" string="Status"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Enhanced Mood Pivot View -->
+    <record id="view_journal_mood_pivot" model="ir.ui.view">
+        <field name="name">journal.entry.mood.pivot</field>
+        <field name="model">journal.entry</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <!-- Rows: Mood and Notebook -->
+                <field name="mood" type="row"/>
+                <field name="notebook_id" type="row"/>
+
+                <!-- Columns: Date by month -->
+                <field name="entry_date" type="col" interval="month"/>
+
+                <!-- Measures: Word Statistics -->
+                <field name="word_count" type="measure" string="Total Words"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Custom Mood Graph View -->
+    <record id="view_journal_mood_graph" model="ir.ui.view">
+        <field name="name">journal.entry.mood.graph</field>
+        <field name="model">journal.entry</field>
+        <field name="arch" type="xml">
+            <graph type="pie" string="Mood Distribution">
+                <field name="mood" type="row"/>
+                <field name="word_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Alternative Mood Graph View (Bar Chart) -->
+    <record id="view_journal_mood_graph_bar" model="ir.ui.view">
+        <field name="name">journal.entry.mood.graph.bar</field>
+        <field name="model">journal.entry</field>
+        <field name="arch" type="xml">
+            <graph type="bar" string="Mood Analysis">
+                <field name="mood" type="row"/>
+                <field name="notebook_id" type="row"/>
+                <field name="word_count" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Notebook Tree View -->
+    <record id="view_journal_notebook_tree" model="ir.ui.view">
+        <field name="name">journal.notebook.tree</field>
+        <field name="model">journal.notebook</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="active==False">
+                <!-- Control Panel Button for Archived Notebooks -->
+                <control>
+                    <create string="New Notebook"/>
+                    <button name="%(action_journal_archived_notebooks)d" string="View Archived Notebooks" type="action" class="btn-secondary"/>
+                </control>
+                <field name="name"/>
+                <field name="color" widget="selection_badge"/>
+                <field name="entries_count" string="Entries"/>
+                <field name="last_entry_date" string="Last Entry"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Notebook Form View -->
+    <record id="view_journal_notebook_form" model="ir.ui.view">
+        <field name="name">journal.notebook.form</field>
+        <field name="model">journal.notebook</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <!-- Save and Discard buttons like tags -->
+                    <button string="Save" class="btn-primary" special="save"/>
+                    <button string="Discard" special="cancel" class="btn-secondary"/>
+
+                    <!-- Spacing -->
+                    <div class="o_header_buttons" role="separator"/>
+
+                    <!-- Action buttons -->
+                    <button name="action_view_entries" string="View Entries" type="object" class="btn-secondary"/>
+                    <button name="action_delete" string="Delete Notebook" type="object" class="btn-danger" confirm="This will delete ALL entries in this notebook. Are you sure?"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="color" widget="selection"/>
+                        </group>
+                        <group>
+                            <field name="entries_count" readonly="1" string="Entries"/>
+                            <field name="last_entry_date" readonly="1" string="Last Entry"/>
+                            <field name="active"/>
+                        </group>
+                    </group>
+                    <field name="description"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tag Tree View -->
+    <record id="view_journal_tag_tree" model="ir.ui.view">
+        <field name="name">journal.tag.tree</field>
+        <field name="model">journal.tag</field>
+        <field name="arch" type="xml">
+            <tree decoration-muted="active==False">
+                <!-- Control Panel Button for Archived Tags -->
+                <control>
+                    <create string="New Tag"/>
+                    <button name="%(action_journal_archived_tags)d" string="View Archived Tags" type="action" class="btn-secondary"/>
+                </control>
+                <field name="name"/>
+                <field name="color" widget="selection_badge"/>
+                <field name="entries_count" string="Entries"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Tag Form View -->
+    <record id="view_journal_tag_form" model="ir.ui.view">
+        <field name="name">journal.tag.form</field>
+        <field name="model">journal.tag</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button string="Save" class="btn-primary" special="save"/>
+                    <button name="action_delete" string="Delete Permanently" type="object"
+                            class="btn-danger"
+                            confirm="This will PERMANENTLY delete this tag and remove it from all entries. This cannot be undone! Continue?"/>
+                    <button string="Discard" special="cancel" class="btn-secondary"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="color" widget="selection"/>
+                            <field name="active"/>
+                        </group>
+                        <group>
+                            <field name="entries_count" readonly="1" string="Entries"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

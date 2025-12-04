@@ -1,0 +1,59 @@
+# Odoo specific
+*.pyc
+*.pyo
+*.so
+*.egg
+*.egg-info/
+*.log
+*.pot
+*.po
+*.mo
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db
+
+# Database
+*.db
+*.sql
+*.sqlite3
+
+# Environment
+.env
+venv/
+env/
+ENV/
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# Odoo filestore
+/filestore/
+/data_dir/
+
+# Logs
+*.log
+logs/
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/

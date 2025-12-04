@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_journal_entry_user,journal.entry.user,model_journal_entry,base.group_user,1,1,1,1
+access_journal_notebook_user,journal.notebook.user,model_journal_notebook,base.group_user,1,1,1,1
+access_journal_tag_user,journal.tag.user,model_journal_tag,base.group_user,1,1,1,1
+access_journal_entry_version_user,journal.entry.version.user,model_journal_entry_version,base.group_user,1,1,1,1
+access_journal_mood_analysis_user,journal.mood.analysis.user,model_journal_mood_analysis,base.group_user,1,0,0,0
