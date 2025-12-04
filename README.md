@@ -1,3 +1,11 @@
+# 📓 Journal Module for Odoo
+
+![Odoo Version](https://img.shields.io/badge/Odoo-15%2B-blue)
+![License](https://img.shields.io/badge/License-LGPL--3.0-green)
+![GitHub last commit](https://img.shields.io/github/last-commit/YOUR_USERNAME/odoo-journal-module)
+
+**Live Demo**: [View on GitHub Pages](https://YOUR_USERNAME.github.io/odoo-journal-module) | 
+**Download**: [.zip](https://github.com/YOUR_USERNAME/odoo-journal-module/archive/refs/heads/main.zip)
 
 ## 🎬 Quick Start
 
