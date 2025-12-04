@@ -23,7 +23,7 @@
     """,
     'category': 'Productivity',
     'author': 'Ayesha Chughtai',
-    'website': 'https://github.com/AyeshaChughtaiIsMe/odoo-journal',
+    'website': 'https://ayeshachughtaiisme.github.io/odoo-journal',
     'depends': ['base', 'mail', 'web'],
     'data': [
         'security/ir.model.access.csv',
